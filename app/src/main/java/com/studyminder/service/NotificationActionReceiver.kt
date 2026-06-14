@@ -22,6 +22,11 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 repo.markScheduleDone(scheduleId)
                 AlarmReceiver.cancelAlarm(context, scheduleId)
                 nm.cancel(scheduleId.hashCode())
+
+                // Check if marking this schedule done pushed the user into a new rank.
+                // This runs even when the app is closed, so the user gets notified
+                // on their phone immediately via a system notification.
+                AlarmReceiver.checkAndFireRankNotification(context)
             }
         }
     }
