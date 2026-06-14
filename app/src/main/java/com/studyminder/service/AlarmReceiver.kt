@@ -12,8 +12,10 @@ import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.studyminder.R
+import com.studyminder.data.model.RankSystem
 import com.studyminder.data.model.ScheduleStatus
 import com.studyminder.data.repository.StudyRepository
+import com.studyminder.ui.MainActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -23,6 +25,7 @@ class AlarmReceiver : BroadcastReceiver() {
     companion object {
         const val CHANNEL_ID = "studyminder_channel"
         const val CHANNEL_REMINDER_ID = "studyminder_reminder"
+        const val CHANNEL_RANK_ID = "studyminder_rank"
         const val EXTRA_SCHEDULE_ID = "schedule_id"
         const val ACTION_ALARM = "com.studyminder.ALARM_ACTION"
         const val ACTION_REPEAT = "com.studyminder.REPEAT_ALARM"
@@ -91,6 +94,70 @@ class AlarmReceiver : BroadcastReceiver() {
                     vibrationPattern = longArrayOf(0, 200, 100, 200)
                 }
                 nm.createNotificationChannel(reminderChannel)
+
+                // Rank-up channel — high importance so it heads-up on the lock screen
+                val rankChannel = NotificationChannel(
+                    CHANNEL_RANK_ID, "Rank Up Alerts",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Notifies you when you reach a new rank"
+                    enableVibration(true)
+                    vibrationPattern = longArrayOf(0, 200, 100, 200, 100, 500)
+                    enableLights(true)
+                }
+                nm.createNotificationChannel(rankChannel)
+            }
+        }
+
+        /**
+         * Checks whether the user has crossed any new rank threshold and, if so,
+         * fires a system notification. Safe to call from a BroadcastReceiver
+         * (i.e. works even when the app is not running).
+         */
+        fun checkAndFireRankNotification(context: Context) {
+            val repo = StudyRepository.getInstance(context)
+            val totalPoints = repo.getTotalDonePoints()
+            val notified = repo.getNotifiedRanks()
+
+            for (rank in RankSystem.ranks) {
+                if (totalPoints >= rank.requiredPoints && !notified.contains(rank.name)) {
+                    // Mark first so duplicate broadcasts can't fire it twice
+                    repo.markRankNotified(rank.name)
+
+                    // Tapping the notification opens the app on the Rank tab
+                    val openAppIntent = Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        putExtra("go_to_rank", true)
+                    }
+                    val tapPendingIntent = PendingIntent.getActivity(
+                        context,
+                        rank.name.hashCode(),
+                        openAppIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+
+                    val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    val notification = NotificationCompat.Builder(context, CHANNEL_RANK_ID)
+                        .setSmallIcon(R.drawable.ic_notification)
+                        .setContentTitle("🏆 New Rank Unlocked: ${rank.name}!")
+                        .setContentText("\"${rank.quote}\"")
+                        .setStyle(
+                            NotificationCompat.BigTextStyle()
+                                .bigText(
+                                    "You've reached the rank of ${rank.name}!\n\n" +
+                                    "\"${rank.quote}\"\n\nTap to see your new badge."
+                                )
+                        )
+                        .setColor(0xFFFFD700.toInt())
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setVibrate(longArrayOf(0, 200, 100, 200, 100, 500))
+                        .setAutoCancel(true)
+                        .setContentIntent(tapPendingIntent)
+                        .build()
+
+                    nm.notify("rank_${rank.name}".hashCode(), notification)
+                    break // one rank-up notification at a time
+                }
             }
         }
     }
