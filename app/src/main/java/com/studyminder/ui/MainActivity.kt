@@ -43,22 +43,46 @@ class MainActivity : AppCompatActivity() {
         startNotificationService()
 
         if (savedInstanceState == null) {
-            loadFragment(DashboardFragment())
+            // If the user tapped the rank-up notification, open straight on the Rank tab.
+            // Otherwise land on Dashboard as normal.
+            if (intent?.getBooleanExtra("go_to_rank", false) == true) {
+                binding.bottomNav.selectedItemId = R.id.nav_rank
+                loadFragment(RankFragment())
+            } else {
+                loadFragment(DashboardFragment())
+            }
         }
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> loadFragment(DashboardFragment())
-                R.id.nav_subjects -> loadFragment(SubjectsFragment())
-                R.id.nav_schedule -> loadFragment(ScheduleFragment())
-                R.id.nav_rank -> loadFragment(RankFragment())
+                R.id.nav_subjects  -> loadFragment(SubjectsFragment())
+                R.id.nav_schedule  -> loadFragment(ScheduleFragment())
+                R.id.nav_rank      -> loadFragment(RankFragment())
             }
             true
         }
 
+        // Also catch rank-ups that happened while the app was open (e.g. marking
+        // done from inside the app rather than from the notification shade).
         checkAndShowRankNotification()
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // Handles the case where the app is already running when the user taps
+        // the rank-up notification (FLAG_ACTIVITY_SINGLE_TOP / CLEAR_TOP path).
+        if (intent?.getBooleanExtra("go_to_rank", false) == true) {
+            binding.bottomNav.selectedItemId = R.id.nav_rank
+            loadFragment(RankFragment())
+        }
+    }
+
+    /**
+     * Called from DashboardFragment after marking a schedule done inside the app.
+     * Shows an in-app dialog for the rank-up (the push notification path is
+     * handled by NotificationActionReceiver when done from the notification shade).
+     */
     fun checkAndShowRankNotification() {
         val totalPoints = repo.getTotalDonePoints()
         val notified = repo.getNotifiedRanks()
