@@ -68,11 +68,26 @@
     <style name="DatePickerStyle" parent="Theme.Material3.Light.Dialog">
         <item name="colorPrimary">@color/mocha_green</item>
         <item name="colorOnPrimary">@color/white</item>
+        <!-- Make Cancel / OK buttons visible (mocha green text on white dialog) -->
+        <item name="buttonBarPositiveButtonStyle">@style/MochaDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MochaDialogButton</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/MochaDialogButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/MochaDialogButton</item>
     </style>
 
     <style name="TimePickerStyle" parent="Theme.Material3.Light.Dialog">
         <item name="colorPrimary">@color/mocha_green</item>
         <item name="colorOnPrimary">@color/white</item>
+        <!-- Make Cancel / OK buttons visible (mocha green text on white dialog) -->
+        <item name="buttonBarPositiveButtonStyle">@style/MochaDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MochaDialogButton</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/MochaDialogButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/MochaDialogButton</item>
+    </style>
+
+    <style name="MochaDialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/mocha_green</item>
+        <item name="rippleColor">@color/mocha_green_tint</item>
     </style>
 
     <style name="SectionHeader" parent="TextAppearance.Material3.TitleMedium">
