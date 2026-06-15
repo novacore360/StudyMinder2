@@ -135,11 +135,12 @@ class DashboardFragment : Fragment() {
         binding.emptyList.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
 
         // Stats row
-        binding.tvUpcomingCount.text = "${upcomingIn48h.size} in next 48h"
-        binding.tvTotalCount.text = "${allSchedules.size} total"
+        binding.tvUpcomingCount.text = "${upcomingIn48h.size}"
+        binding.tvTotalCount.text = "${allSchedules.size}"
         val doneCount = allSchedules.count { it.status == ScheduleStatus.DONE }
         val missedCount = allSchedules.count { it.status == ScheduleStatus.MISSED }
-        binding.tvStats.text = "✅ $doneCount done  ⚠️ $missedCount missed"
+        binding.tvStatsDone.text = "✅ $doneCount done"
+        binding.tvStats.text = "⚠️ $missedCount missed"
     }
 
     private fun openEditDialog(schedule: Schedule) {
