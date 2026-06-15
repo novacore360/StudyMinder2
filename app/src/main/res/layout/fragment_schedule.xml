@@ -40,20 +40,25 @@
 
         </LinearLayout>
 
-        <!-- Filter row: below header, right-aligned -->
+        <!-- Filter row: right-aligned, below header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical|end"
-            android:paddingStart="20dp"
+            android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingTop="10dp"
             android:paddingBottom="4dp">
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="130dp"
-                android:layout_height="wrap_content"
+                android:layout_width="180dp"
+                android:layout_height="40dp"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 app:boxStrokeWidth="0dp"
                 app:boxStrokeWidthFocused="0dp"
@@ -68,14 +73,17 @@
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/dropdownScheduleFilter"
                     android:layout_width="match_parent"
-                    android:layout_height="36dp"
+                    android:layout_height="match_parent"
                     android:inputType="none"
                     android:textSize="12sp"
                     android:textColor="@color/mocha_brown"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="2dp"
                     android:gravity="center_vertical"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="sans-serif-medium"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
